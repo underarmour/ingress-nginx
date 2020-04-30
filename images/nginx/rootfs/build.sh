@@ -33,6 +33,7 @@ export ZIPKIN_CPP_VERSION=0.5.2
 export JAEGER_VERSION=0.4.2
 export MSGPACK_VERSION=3.2.0
 export DATADOG_CPP_VERSION=1.1.3
+export LIGHTSTEP_CPP_VERSION=0.12.0
 export MODSECURITY_VERSION=1.0.1
 export MODSECURITY_LIB_VERSION=6624a18a4e7fd9881a7a9b435db3e481e8e986a5
 export OWASP_MODSECURITY_CRS_VERSION=3.2.0
@@ -101,7 +102,7 @@ apk add \
   lmdb-tools \
   wget \
   curl-dev \
-  libprotobuf \
+  libprotobuf grpc-dev \
   git g++ pkgconf flex bison doxygen yajl-dev lmdb-dev libtool autoconf libxml2 pcre-dev libxml2-dev \
   python \
   libmaxminddb-dev \
@@ -182,6 +183,9 @@ get_src 3b43917a155b81b7d20fdbb3c1be4419626286616195ad426bff1f2f59aa3659 \
 
 get_src 6dc1088ab7f788b6c849fbaa6300517c8fdf88991a70b778be79c284c36857bf \
         "https://github.com/DataDog/dd-opentracing-cpp/archive/v$DATADOG_CPP_VERSION.tar.gz"
+
+get_src e034a91476b72e759db647012f9d61882cbdaa5c84739e71cdbe744c4ccd53e8 \
+        "https://github.com/lightstep/lightstep-tracer-cpp/archive/v$LIGHTSTEP_CPP_VERSION.tar.gz"
 
 get_src 6faab57557bd9cc9fc38208f6bc304c1c13cf048640779f98812cf1f9567e202 \
         "https://github.com/opentracing/lua-bridge-tracer/archive/v$LUA_BRIDGE_TRACER_VERSION.tar.gz"
@@ -341,6 +345,22 @@ cd "$BUILD_PATH/dd-opentracing-cpp-$DATADOG_CPP_VERSION"
 mkdir .build
 cd .build
 cmake ..
+
+make
+make install
+
+# build lightstep lib
+cd "$BUILD_PATH/lightstep-tracer-cpp-$LIGHTSTEP_CPP_VERSION"
+
+mkdir .build
+cd .build
+
+cmake   -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=ON \
+        -DBUILD_TESTING=OFF \
+        -DWITH_GRPC=ON \
+        -DWITH_DYNAMIC_LOAD=ON \
+        ..
 
 make
 make install
